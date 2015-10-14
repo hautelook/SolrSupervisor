@@ -101,8 +101,8 @@ case class GetChildren(path: String)
 
 case class LiveNodeWatcher(deadNode: ActorRef) extends CuratorWatcher with LazyLogging {
   override def process(event: WatchedEvent): Unit = {
-    event.getType.getIntValue
     logger.info(event.toString)
+    Thread.sleep(5000l) // been getting error 500s, maybe going too fast?
     deadNode ! GetChildren(event.getPath)
   }
 }
