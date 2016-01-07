@@ -48,5 +48,3 @@ case class CollectionApi(hostSolr: String, collection: String) {
     else
       PathCollectionActionReplica.format(hostSolr, action, collection, shard, core)
 }
-
-

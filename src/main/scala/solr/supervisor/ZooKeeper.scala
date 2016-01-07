@@ -90,7 +90,3 @@ object JsonExtractor {
 
   private def extract(json: JValue, collection: String, key: String) = json \ collection \ key
 }
-
-
-
-
