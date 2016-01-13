@@ -59,7 +59,7 @@ case class CollectionApi(hostSolr: String, collection: String) {
 trait RequestUrl extends LazyLogging {
   def request(url: String): String
 }
-1
+
 object UrlUtils extends RequestUrl {
   def request(url: String) =  {
     val output = scala.io.Source.fromURL(url).mkString
