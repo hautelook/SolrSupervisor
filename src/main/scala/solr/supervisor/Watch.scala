@@ -2,8 +2,14 @@ package solr.supervisor
 
 import akka.actor._
 import com.typesafe.scalalogging.LazyLogging
+import net.liftweb.json._
+import org.apache.curator.framework.CuratorFrameworkFactory
+import org.apache.curator.framework.api.CuratorWatcher
+import org.apache.curator.retry.ExponentialBackoffRetry
+import org.apache.zookeeper.WatchedEvent
 import sun.misc.{Signal, SignalHandler}
 
+import scala.collection.JavaConversions._
 import scala.concurrent.duration._
 
 /**
@@ -53,7 +59,7 @@ case class CollectionApi(hostSolr: String, collection: String) {
 trait RequestUrl extends LazyLogging {
   def request(url: String): String
 }
-
+1
 object UrlUtils extends RequestUrl {
   def request(url: String) =  {
     val output = scala.io.Source.fromURL(url).mkString
@@ -74,8 +80,6 @@ object ZooKeeper {
   val PathCollections = "/collections"
   val PathState = "/collections/%s/state.json"
 
-  case class Record(node: String, core: String, shard: String, collection: String, replicationFactor: Int)
-
   lazy val client = {
     val baseSleepTime = 1000
     val maxRetries = 3
@@ -89,6 +93,8 @@ object ZooKeeper {
     client.start()
     client
   }
+
+  case class Record(node: String, core: String, shard: String, collection: String, replicationFactor: Int)
 
   // blocking
   def liveNodes = client.getChildren.forPath(PathLiveNodes).toSet
@@ -164,6 +170,8 @@ case class LiveNodeWatcher(deadNode: ActorRef) extends CuratorWatcher with LazyL
 }
 
 class CollectionActor extends Actor with LazyLogging {
+  import ZK.Record
+
   case class Reap(liveNodes: Set[String], nodeMap: Map[String, Seq[Record]])
 
   case class Sow(liveNodes: Set[String], index: Map[String, Map[String, Seq[Record]]], collections: List[String])
